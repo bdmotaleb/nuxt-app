@@ -13,10 +13,10 @@
           </div>
           <div>
             <div class="flex mb-4 items-center" v-for="item in items">
-              <p :class="[item.is_done ? 'line-through text-green-600' : '', `w-full text-grey-darkest font-semibold text-gray-600`]"></p>
+              <p :class="[item.status === 'success' ? 'line-through text-green-600' : '', `w-full text-grey-darkest font-semibold text-gray-600`]">{{ item.title }}</p>
               <button class="flex-no-shrink w-1/3 p-2 ml-4 mr-2 border-2 rounded-lg border-grey">Not Done</button>
               <button class="flex-no-shrink p-2 ml-4 mr-2 border-2 rounded-lg border-green text-white bg-green-500 hover:bg-green-700">Done</button>
-              <button class="flex-no-shrink p-2 ml-2 border-2 rounded-lg text-red border-red text-white bg-red-500 hover:bg-red-700">Remove</button>
+              <button class="flex-no-shrink p-2 ml-2 border-2 rounded-lg text-red border-red text-white bg-red-500 hover:bg-red-700" @click="removeItem(item.id)">Remove</button>
             </div>
           </div>
         </div>
@@ -38,9 +38,27 @@ export default {
     }
   },
   methods: {
+    getRecords() {
+      this.$axios.get('/todos').then(response => {
+        this.items = response.data.items
+      }).catch(error => {
+        console.log(error)
+      })
+    },
     formSubmit() {
 
+    },
+    removeItem(id) {
+      this.$nuxt.$loading.start()
+      this.$axios.delete(`/todos/${id}`).then(() => {
+        this.getRecords()
+      }).catch(error => {
+        console.log(error)
+      })
     }
+  },
+  mounted() {
+    this.getRecords()
   }
 }
 </script>
